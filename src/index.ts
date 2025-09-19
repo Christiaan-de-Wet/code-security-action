@@ -1,6 +1,6 @@
 import { error, getInput, info, setOutput, warning } from '@actions/core'
 import { context } from "@actions/github";
-import { appendFileSync, existsSync } from 'fs'
+import { appendFileSync, existsSync, readFileSync } from 'fs'
 import {
   downloadArtifact,
   postCommentIfInPr,
@@ -112,12 +112,14 @@ async function displayResults() {
     info('Posting comment to GitHub PR as there were new issues introduced:')
     let message = ''
 
+    const eventPath = process.env.GITHUB_EVENT_PATH!;
+    const eventData = JSON.parse(readFileSync(eventPath, 'utf8'));
+    const defaultBranch = eventData.repository?.default_branch;
     const url = 
         `https://${process.env.LW_ACCOUNT_NAME}.lacework.net` + 
         `/ui/investigation/codesec/applications/` + 
-        `${context.repo.owner}/${context.repo.repo}`;
-    
-    message += url;
+        `${context.repo.owner}/${context.repo.repo}` +
+        `/${defaultBranch}`;
 
     for (const [, issues] of Object.entries(issuesByTool)) {
       if (issues.length > 0) {
@@ -127,6 +129,9 @@ async function displayResults() {
     if (getInput('footer') !== '') {
       message += '\n\n' + getInput('footer')
     }
+    
+    message += url;
+
     info(message)
     const commentUrl = await postCommentIfInPr(message)
     if (commentUrl !== undefined) {
