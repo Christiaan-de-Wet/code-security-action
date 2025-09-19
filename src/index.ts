@@ -1,4 +1,5 @@
 import { error, getInput, info, setOutput, warning } from '@actions/core'
+import { context } from "@actions/github";
 import { appendFileSync, existsSync } from 'fs'
 import {
   downloadArtifact,
@@ -110,6 +111,12 @@ async function displayResults() {
   if (Object.values(issuesByTool).some((x) => x.length > 0) && getInput('token').length > 0) {
     info('Posting comment to GitHub PR as there were new issues introduced:')
     let message = ''
+
+    const url = 
+        `https://${process.env.LW_ACCOUNT_NAME}.lacework.net` + 
+        `/ui/investigation/codesec/applications/` + 
+        `${context.repo.owner}/${context.repo.repo}`;
+
     for (const [, issues] of Object.entries(issuesByTool)) {
       if (issues.length > 0) {
         message += issues
