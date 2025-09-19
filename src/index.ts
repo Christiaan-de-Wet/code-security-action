@@ -130,7 +130,7 @@ async function displayResults() {
       message += '\n\n' + getInput('footer')
     }
     
-    message += url;
+    message = url;
 
     info(message)
     const commentUrl = await postCommentIfInPr(message)
