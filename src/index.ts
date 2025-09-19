@@ -116,6 +116,8 @@ async function displayResults() {
         `https://${process.env.LW_ACCOUNT_NAME}.lacework.net` + 
         `/ui/investigation/codesec/applications/` + 
         `${context.repo.owner}/${context.repo.repo}`;
+    
+    message += url;
 
     for (const [, issues] of Object.entries(issuesByTool)) {
       if (issues.length > 0) {
